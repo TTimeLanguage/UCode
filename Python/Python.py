@@ -32,18 +32,14 @@ class instr:
 		self.operand = operand
 
 
-i = 0
 # extract lable
-for s in handle:
+for i, s in enumerate(handle):
 	tmp = s.split()
-	if len(tmp) is 0:
-		continue
 	if s[0] is not '\t' and s[0] is not ' ':
 		labelTable[tmp[0]] = i
 		srcCode.append(tmp[1:])
 	else:
 		srcCode.append(tmp)
-	i += 1
 
 # add special lable
 labelTable["lf"] = -1
