@@ -1,0 +1,29 @@
+           sym  1  1  1  /* counter */
+           sym  1  2  1  /* read/write variable */
+           bgn  2
+           ldc  0 
+           str  1  1     /* counter = 0 */
+loop       nop
+           lod  1  1     /* counter */
+           ldc  3        /* counter | 3 */
+           mod           /* counter % 3 */
+           ldc  0        /* counter % 3 | 0 */
+           eq
+           fjp  next
+           call  lf       /* line feed */
+next       ldp
+           lda  1  2     /* r/w var address */
+           call  read     
+           lod  1  2     /* r/w var */
+           ldc  0        /* r/w var | 0 */
+           eq
+           tjp  exit     /* if 0 then exit */
+           ldp           
+           lod  1  2     /* r/w var */
+           call  write    
+           lod  1  1     /* counter */
+           inc           /* counter++ */
+           str  1  1     /* counter++ */
+           ujp  loop
+exit       nop
+           end
