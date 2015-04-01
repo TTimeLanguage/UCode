@@ -1,0 +1,26 @@
+﻿#include <stdio.h>
+
+const int max = 100;
+
+int main() {
+	int i, j, k;
+	int rem, prime;
+
+	i = 2;
+	while (i <= max) {
+		prime = 1;
+		k = i / 2;
+		j = 2;
+		while (j <= k) {
+			rem = i%j;
+			if (rem == 0) {
+				prime = 0;
+			}
+			j++;
+		}
+		if (prime == 1) {
+			printf("%d ", i);
+		}
+		i++;
+	}
+}
