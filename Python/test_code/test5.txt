@@ -1,0 +1,74 @@
+	sym	1	1	1	/*max = 100*/
+	bgn	1
+	ldc	100
+	str	1	1
+	ldp
+	call	main
+	end
+main	proc	6	2	2	/*main*/	
+	sym	2	1	1	/*i*/
+	sym	2 	2	1	/*j*/
+	sym	2 	3	1	/*k*/
+	sym	2	4	1	/*rem*/
+	sym	2	5 	1	/*prime*/
+	ldc	2
+	str	2	1		/*i = 2*/
+조건1	nop
+	lod	2	1		/*while(i<=max)*/
+	lod	1	1
+	le	
+	tjp	w1
+	ujp	exit			/*while탈출시 종료*/
+w1	nop
+	ldc	1			/*prime = 1*/
+	str	2	5
+	lod	2	1	
+	ldc	2	
+	div				/*k = i / 2*/
+	str	2	3
+	ldc	2			/*j = 2*/
+	str	2	2
+조건2	nop				/*while(j<=k)*/
+	lod	2	2
+	lod	2	3
+	le
+	tjp	w2			
+	ujp	c2			/*while탈출시 if(prime==1)확인*/
+w2	nop								
+	lod	2	1		/*rem = i % j*/
+	lod	2	2
+	mod
+	str	2	4
+	lod	2	4
+	ldc	0
+	eq				/*if(rem==0)*/
+	tjp	c1			
+	ujp	조건3			/*if탈출 ++j*/
+c1	nop				
+	ldc	0			/*prime = 0*/
+	str	2	5
+조건3	nop
+	ldc	1			/*++j*/
+	lod	2	2	
+	add
+	str 	2	2
+	ujp	조건2			/*두번째 while 조건확인*/
+c2	nop
+	lod	2	5		/*if(prime == 1)*/
+	ldc	1
+	eq
+	tjp	c3
+	ujp	조건4			/*++i*/
+c3	nop	
+	ldp				/*write(i)*/
+	lod	2	1
+	call	write
+조건4	nop
+	lod	2	1		/*++i*/
+	ldc	1
+	add
+	str	2 	1
+	ujp	조건1			/*첫번째 while 조건 확인*/
+exit	nop
+	ret
+	end				/*끝*/
