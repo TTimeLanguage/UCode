@@ -1,0 +1,21 @@
+main	proc	3 2 2
+	sym 2 1 1 //지역 a
+	sym 2 2 1 //지역 b
+	sym 2 3 1 //지역 sum
+	ldc 5 // 5를 push
+	str 2 1  // 5를 pop해서 a에저장
+	ldc 10 // 10을 push
+	str 2 2  //10을 pop해서 b에 저장
+	lod 2 1 //a를 stack에 push
+	lod 2 2 //b를 stack에 push
+	add //a+b
+	str 2 3 //sum에 a+b에 값을 저장
+	ldp // load parameter
+	lod 2 3 // sum variable
+	call write // perform write
+	ret
+	end // end of main 
+	bgn	0
+	ldp
+	call	main
+	end
