@@ -1,0 +1,101 @@
+timeCalc proc	3 2 2
+	sym	2 1 1	/* hour */
+	sym	2 2 1	/* min */
+	sym	2 3 1	/* minToAdd */
+	lod	2 2
+	lod	2 3
+	add
+	str	2 2	/* min += minToAdd */
+	lod	2 2
+	ldc	60
+	gt
+	fjp	$$0	/* if (min > 60) */
+	lod	2 2
+	ldc	60
+	div		/* min / 60 */
+	lod	2 1
+	add
+	str	2 1	/* hour += min / 60 */
+	lod	2 2
+	ldc	60
+	mod
+	str	2 2	/* min %= 60 */
+	lod	2 1
+	ldc	23
+	gt
+	fjp	$$0	/* if (hour > 23) */
+	lod	2 1
+	ldc	24
+	mod
+	str	2 1	/* hour %= 24 */
+$$0	ldp		/* printf("%d %d\n", hour, min) */
+	lod	2 1
+	call	write
+	ldp
+	lod	2 2
+	call	write
+	ldp
+	call	lf
+	ret
+	end
+timeCalc2 proc	3 2 2
+	sym	2 1 1	/* hour */
+	sym	2 2 1	/* min */
+	sym	2 3 1	/* minToAdd */
+	lod	2 1
+	ldc	60
+	mult
+	lod	2 3
+	add
+	lod	2 2
+	add
+	str	2 2	/* min += hour * 60 + minToAdd */
+	lod	2 2
+	ldc	60
+	div
+	ldc	24
+	mod
+	str	2 1	/* hour = (min / 60) % 24 */
+	lod	2 2
+	ldc	60
+	mod
+	str	2 2	/* min %= 60 */
+	ldp		/* printf("%d %d\n", hour, min) */
+	lod	2 1
+	call	write
+	ldp
+	lod	2 2
+	call	write
+	ldp
+	call	lf
+	ret
+	end
+main	proc	3 2 2
+	sym	2 1 1	/* hour */
+	sym	2 2 1	/* min */
+	sym	2 3 1	/* minToAdd */
+	ldp
+	lda	2 1
+	call	read	/* scanf("%d", &hour) */
+	ldp
+	lda	2 2
+	call	read	/* scanf("%d", &min) */
+	ldp
+	lda	2 3
+	call	read	/* scanf("%d", &minToAdd) */
+	ldp
+	lod	2 1
+	lod	2 2
+	lod	2 3
+	call	timeCalc
+	ldp
+	lod	2 1
+	lod	2 2
+	lod	2 3
+	call	timeCalc2
+	ret
+	end
+	bgn	0
+	ldp
+	call	main
+	end
