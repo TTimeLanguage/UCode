@@ -50,7 +50,7 @@ labelTable["read"] = -3
 opCodes = ["notop", "neg", "inc", "dec", "dup", "add", "sub", "mult", "div", "mod", \
 	"swp", "and", "or", "gt", "lt", "ge", "le", "eq", "ne", "lod", "str", "ldc", \
 	"lda", "ujp", "tjp", "fjp", "chkh", "chkl", "ldi", "sti", "call", "ret", "retv", \
-	"ldp", "proc", "end", "nop", "bgn", "sym"]
+	"ldp", "proc", "end", "nop", "bgn", "sym", "dump"]
 
 opCodeDict = dict()
 for i, s in enumerate(opCodes):
@@ -67,7 +67,7 @@ for i, tmpList in enumerate(srcCode):
 	op = opCodeDict[tmpList[0]]
 
 	# no parameter
-	if (0 <= op <= 18) or op in [28, 29, 31, 32, 33, 35, 36]:
+	if (0 <= op <= 18) or op in [28, 29, 31, 32, 33, 35, 36, 39]:
 		srcCode[i] = instr(op, None)
 
 	# 3 parameter
@@ -343,6 +343,12 @@ while True:
 	# sym
 	elif op == 38:
 		pass
+	# dump
+	elif op == 39:
+		for i, v in enumerate(stack.arr):
+			if i > stack.sp: break
+			print("({0}, {1})".format(i, v), end=' ')
+		print("")
 
 	pc += 1
 
