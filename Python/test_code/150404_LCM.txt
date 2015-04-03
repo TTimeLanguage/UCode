@@ -1,0 +1,96 @@
+gcd	proc	3 2 2
+	sym	2 1 1	/* a */
+	sym	2 2 1	/* b */
+	sym	2 3 1	/* tmp */
+$$0	nop		/* while (b) */
+	lod	2 2
+	ldc	0
+	eq
+	tjp	$$1
+	lod	2 1
+	lod	2 2
+	mod
+	str	2 3	/* tmp = a%b */
+	lod	2 2
+	str	2 1	/* a = b */
+	lod	2 3
+	str	2 2	/* b = tmp */
+	ujp	$$0
+$$1	nop
+	lod	2 1
+	retv
+	end
+gcd2	proc	2 2 2
+	sym	2 1 1	/* a */
+	sym	2 2 1	/* b */
+	lod	2 2
+	ldc	0
+	eq
+	fjp	$$2
+	lod	2 1
+	retv		/* if (!b) return a */
+$$2	nop
+	ldp
+	lod	2 2
+	lod	2 1
+	lod	2 2
+	mod
+	call	gcd2
+	retv		/* return gcd2(b, a%b) */
+	end
+main	proc	4 2 2
+	sym	2 1 1	/* n */
+	sym	2 2 1	/* a */
+	sym	2 3 1	/* b */
+	sym	2 4 1	/* tmp */
+	ldp
+	lda	2 1
+	call	read
+$$3	nop		/* while (n--) */
+	lod	2 1
+	ldc	0
+	eq
+	lod	2 1
+	dec
+	str	2 1
+	tjp	$$4
+	ldp
+	lda	2 2
+	call	read
+	ldp
+	lda	2 3
+	call	read	/* scanf("%d %d", &a, &b); */
+	lod	2 2
+	lod	2 3
+	mult
+	ldp
+	lod	2 2
+	lod	2 3
+	call	gcd
+	div
+	str	2 4	/* tmp = (a*b) / gcd(a, b) */
+	ldp
+	lod	2 4
+	call	write
+	call	lf	/* printf("%d\n", tmp) */
+	lod	2 2
+	lod	2 3
+	mult
+	ldp
+	lod	2 2
+	lod	2 3
+	call	gcd2
+	div
+	str	2 4	/* tmp = (a*b) / gcd2(a, b) */
+	ldp
+	lod	2 4
+	call	write
+	call	lf	/* printf("%d\n", tmp) */
+	ujp	$$3
+$$4	nop
+	ret
+	end
+	bgn	0
+	ldp
+	call	main
+	end
