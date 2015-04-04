@@ -1,0 +1,52 @@
+main	proc	3 2 2
+	sym	2 1 1	/* i */
+	sym	2 2 1	/* j */
+	sym	2 3 1	/* res */
+	lod	2 1	/* i = 2 */
+	ldc	2
+	str	2 1
+$$0	nop
+	lod	2 1	/* while(i<10) */
+	ldc	10
+	lt
+	fjp	$$3
+	lod	2 2	/* j = 1 */
+	ldc	1
+	str	2 2
+$$1	nop
+	lod	2 2	/* while(j<10) */
+	ldc	10
+	lt
+	fjp	$$2
+	lod	2 1	/* res = i * j */
+	lod	2 2
+	mult
+	str	2 3
+	ldp		/* printf("%d %d %d \n",i,j,res) */
+	lod	2 1
+	call	write
+	ldp
+	lod	2 2
+	call	write
+	ldp
+	lod	2 3
+	call	write
+	call	lf
+	lod	2 2	/* j++ */
+	ldc	1
+	add
+	str	2 2
+	ujp	$$1
+$$2	nop
+	lod	2 1	/* i++ */
+	ldc	1
+	add
+	str	2 1
+	ujp	$$0
+$$3	nop		/* end */
+	ret
+	end
+	bgn	0
+	ldp
+	call	main
+	end
