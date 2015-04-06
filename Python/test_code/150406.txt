@@ -1,0 +1,29 @@
+a	proc	2 2 2
+	sym	2 1 1
+	sym	2 2 1
+	lod	2 1
+	lod	2 2
+	mult
+	retv
+	end
+	sym	1 1 1
+	sym	1 2 1
+	bgn	2
+	ldc	3
+	str	1 1
+	ldc	5
+	str	1 2
+	lod	1 2
+	ldp
+	lod	1 1
+	call	write
+	ldp
+	lod	1 1
+	lod	1 2
+	call	a
+	mult
+	str	1 2
+	ldp
+	lod	1 2
+	call	write
+	end
