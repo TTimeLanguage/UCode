@@ -203,9 +203,11 @@ while True:
 	# and
 	elif op == 11:
 		stack[-2] = stack[-2] & stack[-1]
+		stack.pop()
 	# or
 	elif op == 12:
 		stack[-2] = stack[-2] | stack[-1]
+		stack.pop()
 	# gt
 	elif op == 13:
 		if stack[-2] > stack[-1]:
