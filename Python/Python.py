@@ -203,9 +203,11 @@ while True:
 	# and
 	elif op == 11:
 		stack[-2] = stack[-2] & stack[-1]
+		stack.pop()
 	# or
 	elif op == 12:
 		stack[-2] = stack[-2] | stack[-1]
+		stack.pop()
 	# gt
 	elif op == 13:
 		if stack[-2] > stack[-1]:
@@ -293,10 +295,12 @@ while True:
 			print("")
 		elif operand[0] == -2:
 			print(stack[-1], end = " ")
+			stack.setSP(spBackUp - 1)
 		elif operand[0] == -3:
 			while len(buffer) == 0:
 				buffer = list(map(int, input().split()))
 			stack[stack[-1]] = buffer.pop(0)
+			stack.setSP(spBackUp - 1)
 		else:
 			stack[spBackUp + 2] = pc + 1
 			stack[spBackUp + 1] = curntFuncStartP
