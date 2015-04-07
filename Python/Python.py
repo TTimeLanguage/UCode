@@ -293,10 +293,12 @@ while True:
 			print("")
 		elif operand[0] == -2:
 			print(stack[-1], end = " ")
+			stack.setSP(spBackUp - 1)
 		elif operand[0] == -3:
 			while len(buffer) == 0:
 				buffer = list(map(int, input().split()))
 			stack[stack[-1]] = buffer.pop(0)
+			stack.setSP(spBackUp - 1)
 		else:
 			stack[spBackUp + 2] = pc + 1
 			stack[spBackUp + 1] = curntFuncStartP
