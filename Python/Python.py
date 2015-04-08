@@ -300,7 +300,8 @@ while True:
 		elif operand[0] == -3:
 			while len(buffer) == 0:
 				buffer = list(map(int, input().split()))
-			stack[stack[-1]] = buffer.pop(0)
+			address = stack.pop()
+			stack[address] = buffer.pop(0)
 			stack.setSP(spBackUp - 1)
 		else:
 			stack[spBackUp + 2] = pc + 1
