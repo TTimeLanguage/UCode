@@ -16,7 +16,7 @@ except:
 
 
 # key: label name (str)
-# value: lable address (int)
+# value: label address (int)
 labelTable = dict()
 
 # store all source code
@@ -32,7 +32,7 @@ class instr:
 		self.operand = operand
 
 
-# extract lable
+# extract label
 for i, s in enumerate(handle):
 	tmp = s.split()
 	if s[0] is not '\t' and s[0] is not ' ':
@@ -41,7 +41,7 @@ for i, s in enumerate(handle):
 	else:
 		srcCode.append(tmp)
 
-# add special lable
+# add special label
 labelTable["lf"] = -1
 labelTable["write"] = -2
 labelTable["read"] = -3
