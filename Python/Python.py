@@ -1,14 +1,15 @@
 import sys
 
 # if parameter is wrong print error and exit
-if len(sys.argv) != 2:
+if len(sys.argv) != 3:
 	print("parameter error")
 	exit()
 
 # if fail to open file print error and exit
 try:
-	# file handle
-	handle = open(sys.argv[1])
+	# file readHandle
+	readHandle = open(sys.argv[1])
+	writeHandle = open(sys.argv[2], mode = 'w')
 except:
 	print("file open error")
 	exit()
@@ -19,8 +20,10 @@ except:
 # value: label address (int)
 labelTable = dict()
 
-# store all source code
+# store all source code in class
 srcCode = list()
+# store all source code in str
+originalSrcCode = list()
 
 #
 class instr:
@@ -33,7 +36,8 @@ class instr:
 
 i = 0
 # extract label
-for s in handle:
+for s in readHandle:
+	originalSrcCode.append(s[:-1])
 	tmp = s.split()
 	if len(tmp) == 0:
 		continue
@@ -59,7 +63,8 @@ opCodeDict = dict()
 for i, s in enumerate(opCodes):
 	opCodeDict[s] = i
 	
-
+dynamicInstrCount = [0] * len(opCodes)
+staticInstrCount = [0] * len(opCodes)
 
 # program counter
 pc = int()
@@ -68,6 +73,7 @@ pc = int()
 # and convert opcode to integer
 for i, tmpList in enumerate(srcCode):
 	op = opCodeDict[tmpList[0]]
+	staticInstrCount[op] += 1
 
 	# no parameter
 	if (0 <= op <= 18) or op in [28, 29, 31, 32, 33, 35, 36, 39]:
@@ -92,10 +98,12 @@ for i, tmpList in enumerate(srcCode):
 	else:
 		srcCode[i] = instr(op, (int(tmpList[1]), int(tmpList[2])))
 
-# DEBUG
-#for l in srcCode:
-#	print(l.opcode, "({0})".format(opCodes[l.opcode]), l.operand)
-#
+
+
+writeHandle.write("Line\t object\t\t ucode source program\n\n")
+for i, l in enumerate(srcCode):
+	writeHandle.write("{0:3}\t({1}  {2})\t{3}\n".format(i, l.opcode, l.operand, originalSrcCode[i]))
+
 
 class Stack:
 	arr = list()
@@ -152,11 +160,12 @@ def findAddress(address):
 	return tmp + 3 + address[1]
 
 
-
+writeHandle.write("\n*****  Result  *****\n\n")
 
 while True:
 	op = srcCode[pc].opcode
 	operand = srcCode[pc].operand
+	dynamicInstrCount[op] += 1
 	#print("pc: {0}, {1} ({2})".format(pc, op, opCodes[op]))
 	
 	# notop
@@ -302,9 +311,9 @@ while True:
 	# call
 	elif op == 30:
 		if operand[0] == -1:
-			print("")
+			writeHandle.write("\n")
 		elif operand[0] == -2:
-			print(stack[-1], end = " ")
+			writeHandle.write(str(stack[-1]))
 			stack.setSP(spBackUp - 1)
 		elif operand[0] == -3:
 			while len(buffer) == 0:
@@ -366,3 +375,21 @@ while True:
 		print("")
 
 	pc += 1
+
+
+
+writeHandle.write("\n\n\n\t*****  Statistics  *****\n\n")
+writeHandle.write("\n*****  Static Instruction Counts  *****\n\n")
+
+for i in range(0, 40, 4):
+	writeHandle.write("{0:5} = {1}\t".format(opCodes[i], staticInstrCount[i]))
+	writeHandle.write("{0:5} = {1}\t".format(opCodes[i + 1], staticInstrCount[i + 1]))
+	writeHandle.write("{0:5} = {1}\t".format(opCodes[i + 2], staticInstrCount[i + 2]))
+	writeHandle.write("{0:5} = {1}\n".format(opCodes[i + 3], staticInstrCount[i + 3]))
+
+writeHandle.write("\n\n*****  Dynamic instruction counts  *****\n\n")
+for i in range(0, 40, 4):
+	writeHandle.write("{0:5} = {1}\t".format(opCodes[i], dynamicInstrCount[i]))
+	writeHandle.write("{0:5} = {1}\t".format(opCodes[i + 1], dynamicInstrCount[i + 1]))
+	writeHandle.write("{0:5} = {1}\t".format(opCodes[i + 2], dynamicInstrCount[i + 2]))
+	writeHandle.write("{0:5} = {1}\n".format(opCodes[i + 3], dynamicInstrCount[i + 3]))
