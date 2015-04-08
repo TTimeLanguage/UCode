@@ -141,8 +141,14 @@ buffer = list()
 
 def findAddress(address):
 	tmp = curntFuncStartP
+	if tmp < 1 or (address[0] == 0):
+		print("wrong memory access")
+		exit(1)
 	while address[0] != stack[tmp + 3]:
 		tmp = stack[tmp]
+		if tmp < 1:
+			print("wrong memory access")
+			exit(1)
 	return tmp + 3 + address[1]
 
 
@@ -185,6 +191,9 @@ while True:
 		stack.pop()
 	# div
 	elif op == 8:
+		if stack[-1] is 0:
+			print("can't divide by 0")
+			exit(1)
 		stack[-2] //= stack[-1]
 		stack.pop()
 	# mod
@@ -275,12 +284,12 @@ while True:
 	elif op == 26:
 		if stack[-1] > operand[0]:
 			print("error chkh")
-			exit()
+			exit(1)
 	# chkl
 	elif op == 27:
 		if stack[-1] < operand[0]:
 			print("error chkl")
-			exit()
+			exit(1)
 	# ldi
 	elif op == 28:
 		address = stack.pop()
