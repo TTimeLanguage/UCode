@@ -15,9 +15,9 @@ except:
 
 
 
-# key: lable name (str)
+# key: label name (str)
 # value: lable address (int)
-lableTable = dict()
+labelTable = dict()
 
 # store all source code
 srcCode = list()
@@ -36,15 +36,15 @@ class instr:
 for i, s in enumerate(handle):
 	tmp = s.split()
 	if s[0] is not '\t' and s[0] is not ' ':
-		lableTable[tmp[0]] = i
+		labelTable[tmp[0]] = i
 		srcCode.append(tmp[1:])
 	else:
 		srcCode.append(tmp)
 
 # add special lable
-lableTable["lf"] = -1
-lableTable["write"] = -2
-lableTable["read"] = -3
+labelTable["lf"] = -1
+labelTable["write"] = -2
+labelTable["read"] = -3
 
 # define opcodes list and build dict
 opCodes = ["notop", "neg", "inc", "dec", "dup", "add", "sub", "mult", "div", "mod", \
@@ -81,9 +81,9 @@ for i, tmpList in enumerate(srcCode):
 		if op is 37:
 			pc = i
 
-	# 1 lable parameter
+	# 1 label parameter
 	elif op in [23, 24, 25, 30]:
-		srcCode[i] = instr(op, (lableTable[tmpList[1]], ))
+		srcCode[i] = instr(op, (labelTable[tmpList[1]], ))
 
 	# 2 parameter
 	else:
