@@ -323,7 +323,7 @@ while True:
 		stack.setSP(stack.sp + 4)
 	# proc
 	elif op == 34:
-		stack[curntFuncStartP + 3] = operand[2]
+		stack[curntFuncStartP + 3] = operand[1]
 		stack.setSP(curntFuncStartP + operand[0] + 3)
 		tmp = stack[curntFuncStartP + 1]
 		while operand[2] - 1 != stack[tmp + 3]:
