@@ -154,7 +154,7 @@ def findAddress(address):
 		exit(1)
 	while address[0] != stack[tmp + 3]:
 		tmp = stack[tmp]
-		if tmp < 1:
+		if tmp < 0:
 			print("wrong memory access")
 			exit(1)
 	return tmp + 3 + address[1]
@@ -306,14 +306,14 @@ while True:
 	# sti
 	elif op == 29:
 		dataToSave = stack.pop()
-		stack[stack[-1]] = dataToSave
-		stack.pop()
+		address = stack.pop()
+		stack[address] = dataToSave
 	# call
 	elif op == 30:
 		if operand[0] == -1:
 			writeHandle.write("\n")
 		elif operand[0] == -2:
-			writeHandle.write(str(stack[-1]))
+			writeHandle.write("{0} ".format(stack[-1]))
 			stack.setSP(spBackUp - 1)
 		elif operand[0] == -3:
 			while len(buffer) == 0:
