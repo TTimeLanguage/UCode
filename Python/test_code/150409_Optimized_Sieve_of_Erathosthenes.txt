@@ -1,0 +1,77 @@
+	sym	1 1 1000
+	bgn	1000
+	ldp
+	call	main
+	end
+
+f	proc	2 2 2
+	sym	2 1 1	// i
+	sym	2 2 1	// j
+	lod	2 1
+	lod	2 1
+	add
+	str	2 2	// j = i + i
+loop	lod	2 2
+	ldc	1000
+	lt
+	fjp	loopEnd
+	lda	1 1
+	lod	2 2
+	add
+	ldc	1
+	sti
+	lod	2 2
+	lod	2 1
+	add
+	str	2 2
+	ujp	loop
+loopEnd	ret
+	end
+
+main	proc	1 2 2
+	sym	2 1 1	// i
+	ldc	2
+	str	2 1	// i = 2
+loop2	lod	2 1
+	ldc	32
+	le
+	fjp	end
+	lda	1 1
+	lod	2 1
+	add
+	ldi
+	notop
+	ldc	1
+	eq
+	fjp	$$0
+	ldp
+	lod	2 1
+	call	f
+$$0	lod	2 1
+	inc
+	str	2 1
+	ujp	loop2
+end	nop
+	ldc	2
+	str	2 1	// i = 2
+loop3	lod	2 1
+	ldc	1000
+	lt
+	fjp	end2
+	lda	1 1
+	lod	2 1
+	add
+	ldi
+	notop
+	ldc	1
+	eq
+	fjp	$$1
+	ldp
+	lod	2 1
+	call	write
+$$1	lod	2 1
+	inc
+	str	2 1
+	ujp	loop3
+end2	ret
+	end
