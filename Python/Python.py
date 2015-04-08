@@ -147,12 +147,6 @@ def findAddress(address):
 
 
 
-stack.push(-1)
-stack.push(-1)
-stack.push(-1)
-stack.push(0)
-
-
 
 while True:
 	op = srcCode[pc].opcode
