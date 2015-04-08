@@ -274,11 +274,13 @@ while True:
 	# chkh
 	elif op == 26:
 		if stack[-1] > operand[0]:
-			print("chkh")
+			print("error chkh")
+			exit()
 	# chkl
 	elif op == 27:
 		if stack[-1] < operand[0]:
-			print("chkl")
+			print("error chkl")
+			exit()
 	# ldi
 	elif op == 28:
 		address = stack.pop()
