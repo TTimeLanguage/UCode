@@ -246,16 +246,20 @@ while True:
 		stack.pop()
 	# lod
 	elif op == 19:
-		stack.push(stack[findAddress(operand)])
+		address = findAddress(operand)
+		value = stack[address]
+		stack.push(value)
 	# str
 	elif op == 20:
-		stack[findAddress(operand)] = stack.pop()
+		address = findAddress(operand)
+		stack[address] = stack.pop()
 	# ldc
 	elif op == 21:
 		stack.push(operand[0])
 	# lda
 	elif op == 22:
-		stack.push(findAddress(operand))
+		address = findAddress(operand)
+		stack.push(address)
 	# ujp
 	elif op == 23:
 		pc = operand[0] - 1
@@ -277,7 +281,8 @@ while True:
 			print("chkl")
 	# ldi
 	elif op == 28:
-		stack[-1] = stack[stack[-1]]
+		address = stack.pop()
+		stack.push(stack[address])
 	# sti
 	elif op == 29:
 		dataToSave = stack.pop()
@@ -307,7 +312,7 @@ while True:
 		curntFuncStartP = stack[curntFuncStartP + 1]
 	# retv
 	elif op == 32:
-		tmp = stack[stack.sp]
+		tmp = stack[-1]
 		stack.setSP(curntFuncStartP - 1)
 		stack.push(tmp)
 		pc = stack[curntFuncStartP + 2] - 1
@@ -349,9 +354,3 @@ while True:
 		print("")
 
 	pc += 1
-
-
-#	for i, v in enumerate(stack.arr):
-#		if i > stack.sp: break
-#		print("({0}, {1})".format(i, v), end=' ')
-#	print("")
