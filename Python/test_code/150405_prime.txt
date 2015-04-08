@@ -1,0 +1,59 @@
+main	proc	4 2 2
+	sym	2 1 1	/*num*/
+	sym	2 2 1	/*count*/
+	sym	2 3 1	/*i*/
+	sym	2 4 1	/*j*/
+	ldp
+	lda	2 1
+	call	read	/*scanf("%d",&num)/*
+	ldc	1
+	str	2 3	/*i=1*/
+$$0	nop
+	lod	2 3	/*i++*/
+	ldc	1
+	add
+	str	2 3
+	lod	2 3
+	lod	2 1	/*i<num*/
+	lt
+	fjp	$$3
+	ldc	1	/*j=1*/
+	str	2 4
+	ldc	0	/*count=0*/
+	str	2 2
+$$1	nop
+	lod	2 4	/*j++*/
+	ldc	1
+	add
+	str	2 4
+	lod	2 4	/*j<=i*/
+	lod	2 3
+	le
+	fjp	$$2
+	lod	2 3	/*i%j == 0*/
+	lod	2 4
+	mod
+	ldc	0
+	eq
+	fjp	$$1
+	lod	2 2	/*count++*/
+	ldc	1
+	add
+	str	2 2
+	ujp	$$1
+$$2	nop
+	lod	2 2	/*count==1*/
+	ldc	1
+	eq
+	fjp	$$0
+	ldp		/*printf("%d",i)*/
+	lod	2 3
+	call	write
+	ujp	$$0
+$$3	nop		/*end*/
+	ret
+	end
+	bgn	0
+	ldp
+	call	main
+	end
