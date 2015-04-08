@@ -103,9 +103,6 @@ class Stack:
 
 	def __init__(self, size):
 		self.arr = [0]*size
-	
-	def __len__(self):
-		return len(self.arr)
 
 	def pop(self):
 		self.sp -= 1
