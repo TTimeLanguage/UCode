@@ -31,15 +31,18 @@ class instr:
 		self.opcode = opcode
 		self.operand = operand
 
-
+i = 0
 # extract label
-for i, s in enumerate(handle):
+for s in handle:
 	tmp = s.split()
-	if s[0] is not '\t' and s[0] is not ' ':
+	if len(tmp) == 0:
+		continue
+	elif s[0] is not '\t' and s[0] is not ' ':
 		labelTable[tmp[0]] = i
 		srcCode.append(tmp[1:])
 	else:
 		srcCode.append(tmp)
+	i += 1
 
 # add special label
 labelTable["lf"] = -1
