@@ -149,7 +149,7 @@ buffer = list()
 
 def findAddress(address):
 	tmp = curntFuncStartP
-	if tmp < 1 or (address[0] == 0):
+	if tmp < 0 or (address[0] == 0):
 		print("wrong memory access")
 		exit(1)
 	while address[0] != stack[tmp + 3]:
