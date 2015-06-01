@@ -1,71 +1,86 @@
 import sys
+import struct
+import datetime
 
 # if parameter is wrong print error and exit
-if len(sys.argv) != 3:		# ÆÄ¶ó¹ÌÅÍÀÇ °³¼ö°¡ 3°³°¡¾Æ´Ò ¶§ ¿¹¿ÜÃ³¸®
+if len(sys.argv) != 3:		# íŒŒë¼ë¯¸í„°ì˜ ê°œìˆ˜ê°€ 3ê°œê°€ì•„ë‹ ë•Œ ì˜ˆì™¸ì²˜ë¦¬
 	print("parameter error")
 	exit()
 
 # if fail to open file print error and exit
 try:
 	# file readHandle
-	readHandle = open(sys.argv[1])	# readHandleÀ» ÀÌ¿ëÇÑ ¼Ò½ºÄÚµå ÆÄÀÏÀ» ¿­±âÀ§ÇÑ Ã³¸®
-	writeHandle = open(sys.argv[2], mode = 'w')	# writeHandleÀ» ÀÌ¿ëÇÑ ¼Ò½ºÄÚµå ÆÄÀÏÀ» ¿­±âÀ§ÇÑ Ã³¸®
+	readHandle = open(sys.argv[1])				# readHandleì„ ì´ìš©í•œ ì†ŒìŠ¤ì½”ë“œ íŒŒì¼ì„ ì—´ê¸°ìœ„í•œ ì²˜ë¦¬
+	writeHandle = open(sys.argv[2], mode='w')	# writeHandleì„ ì´ìš©í•œ ì†ŒìŠ¤ì½”ë“œ íŒŒì¼ì„ ì—´ê¸°ìœ„í•œ ì²˜ë¦¬
 except:
-	print("file open error")		# ÆÄÀÏ Ãâ·Â¿¡ ´ëÇÑ ¿¹¿ÜÃ³¸®
+	print("file open error")		# íŒŒì¼ ì¶œë ¥ì— ëŒ€í•œ ì˜ˆì™¸ì²˜ë¦¬
 	exit()
 
 
 
-# key: label name (str)		  key ´Â labelÀÇ ÀÌ¸§
-# value: label address (int)  value´Â ¶óÀÎ ³Ñ¹ö(lableÀÇ address)
-labelTable = dict()			# ¶óº§À» ÀúÀåÇÏ±âÀ§ÇÑ labelTableÀÇ Çü½ÄÀ» dictÅ¸ÀÔÀ¸·Î ¼±¾ğ
+# key: label name (str)		  key ëŠ” labelì˜ ì´ë¦„
+# value: label address (int)  valueëŠ” ë¼ì¸ ë„˜ë²„(lableì˜ address)
+labelTable = dict()			# ë¼ë²¨ì„ ì €ì¥í•˜ê¸°ìœ„í•œ labelTableì˜ í˜•ì‹ì„ dictíƒ€ì…ìœ¼ë¡œ ì„ ì–¸
 
 # store all source code in class
-srcCode = list()			# ¸ğµç ¼Ò½ºÄÚµå¸¦ ÀúÀåÇÏ±â À§ÇÑ srcCode´Â ¸®½ºÆ® Å¸ÀÔÀ¸·Î ¼±¾ğ
+srcCode = list()			# ëª¨ë“  ì†ŒìŠ¤ì½”ë“œë¥¼ ì €ì¥í•˜ê¸° ìœ„í•œ srcCodeëŠ” ë¦¬ìŠ¤íŠ¸ íƒ€ì…ìœ¼ë¡œ ì„ ì–¸
 # store all source code in str
 originalSrcCode = list()
 
 #
 class instr:
-	opcode = int()		# ¸í·É¾î¸¦ ¹Ş±âÀ§ÇÑ opcode´Â intÅ¸ÀÔ
-	operand = tuple()	# ÆÄ¶ó¹ÌÅÍµéÀ» ¹Ş´Â operand´Â tupleÅ¸ÀÔ(ÆÄ¶ó¹ÌÅÍ °¹¼ö°¡ ´Ù¸£¹Ç·Î)
-	
+	opcode = int()		# ëª…ë ¹ì–´ë¥¼ ë°›ê¸°ìœ„í•œ opcodeëŠ” intíƒ€ì…
+	operand = tuple()	# íŒŒë¼ë¯¸í„°ë“¤ì„ ë°›ëŠ” operandëŠ” tupleíƒ€ì…(íŒŒë¼ë¯¸í„° ê°¯ìˆ˜ê°€ ë‹¤ë¥´ë¯€ë¡œ)
+
 	def __init__(self, opcode, operand):
 		self.opcode = opcode
 		self.operand = operand
 
 i = 0
-# extract label			# handle¾È¿¡ ÀÖ´Â ³»¿ëµéÀ» ÇÑÁÙ¾¿ °¡Á®¿Â´Ù.
+# extract label			# handleì•ˆì— ìˆëŠ” ë‚´ìš©ë“¤ì„ í•œì¤„ì”© ê°€ì ¸ì˜¨ë‹¤.
 for s in readHandle:
 	originalSrcCode.append(s[:-1])
-	tmp = s.split()		# °¢ ÁÙÀÇ ¼Ò½ºÄÚµå¸¦ split()¸¦ ÀÌ¿ëÇÏ¿© ÂÉ°µ´Ù.
-	if len(tmp) == 0:	# ºóÁÙÀÏ °æ¿ì ¹«½Ã
+	tmp = s.split()		# ê° ì¤„ì˜ ì†ŒìŠ¤ì½”ë“œë¥¼ split()ë¥¼ ì´ìš©í•˜ì—¬ ìª¼ê° ë‹¤.
+	if len(tmp) == 0:	# ë¹ˆì¤„ì¼ ê²½ìš° ë¬´ì‹œ
 		continue
-	elif s[0] is not '\t' and s[0] is not ' ':	# ¸¸¾à Ã¹¹øÂ°(¶óº§ÀÇ À§Ä¡)°¡ °ø¹éÀÌ ¾Æ´Ò °æ¿ì
-		labelTable[tmp[0]] = i		# ¶óº§À» key·Î ¶óº§ÀÌ À§Ä¡ÇÑ ÁÙ¹øÈ£¸¦ Value·Î labelTable¿¡ ÀúÀå
-		srcCode.append(tmp[1:])		# ¶óº§À» Á¦¿ÜÇÑ ºÎºĞÀº srcCode¿¡ append
+	elif s[0] is not '\t' and s[0] is not ' ':	# ë§Œì•½ ì²«ë²ˆì§¸(ë¼ë²¨ì˜ ìœ„ì¹˜)ê°€ ê³µë°±ì´ ì•„ë‹ ê²½ìš°
+		labelTable[tmp[0]] = i		# ë¼ë²¨ì„ keyë¡œ ë¼ë²¨ì´ ìœ„ì¹˜í•œ ì¤„ë²ˆí˜¸ë¥¼ Valueë¡œ labelTableì— ì €ì¥
+		srcCode.append(tmp[1:])		# ë¼ë²¨ì„ ì œì™¸í•œ ë¶€ë¶„ì€ srcCodeì— append
 	else:
-		srcCode.append(tmp)			# Ã¹¹øÂ°°¡ °ø¹éÀÏ °æ¿ì ±×³É srcCode¿¡ append
+		srcCode.append(tmp)			# ì²«ë²ˆì§¸ê°€ ê³µë°±ì¼ ê²½ìš° ê·¸ëƒ¥ srcCodeì— append
 	i += 1
 
 # add special label
-#±âÁ¸ÀÇ Á¤ÀÇµÈ °ÍÀÌ±â¿¡ ÀÓÀÇ·Î À½¼ö·Î Ã³¸®
+#ê¸°ì¡´ì˜ ì •ì˜ëœ ê²ƒì´ê¸°ì— ì„ì˜ë¡œ ìŒìˆ˜ë¡œ ì²˜ë¦¬
 labelTable["lf"] = -1
 labelTable["write"] = -2
 labelTable["read"] = -3
+labelTable["addFloat"] = -4
+labelTable["subFloat"] = -5
+labelTable["mulFloat"] = -6
+labelTable["divFloat"] = -7
+labelTable["modFloat"] = -8
+labelTable["negFloat"] = -9
+labelTable["F2I"] = -10
+labelTable["I2F"] = -11
+labelTable["writeF"] = -12
+labelTable["writeC"] = -13
+labelTable["writeT"] = -14
+labelTable["writeD"] = -15
+
 
 # define opcodes list and build dict
-#¿ì¼± opCodes¿¡ ¸ğµç Ucode¸í·É¾î¸¦ ³Ö´Â´Ù.
+#ìš°ì„  opCodesì— ëª¨ë“  Ucodeëª…ë ¹ì–´ë¥¼ ë„£ëŠ”ë‹¤.
 opCodes = ["notop", "neg", "inc", "dec", "dup", "add", "sub", "mult", "div", "mod", \
 	"swp", "and", "or", "gt", "lt", "ge", "le", "eq", "ne", "lod", "str", "ldc", \
 	"lda", "ujp", "tjp", "fjp", "chkh", "chkl", "ldi", "sti", "call", "ret", "retv", \
 	"ldp", "proc", "end", "nop", "bgn", "sym", "dump"]
 
-# opCodeDict´Â À§¿¡¼­ Á¤ÀÇÇÑ opCodes¿¡ ÀÖ´Â ¹®ÀÚ·ÎµÈ Opcode¸¦ Key·Î ÇÏ°í ±×°Í¿¡ ´ëÇÑ Integer °ªÀ» Value·Î °®´Â dictÅ¸ÀÔ 
+# opCodeDictëŠ” ìœ„ì—ì„œ ì •ì˜í•œ opCodesì— ìˆëŠ” ë¬¸ìë¡œëœ Opcodeë¥¼ Keyë¡œ í•˜ê³  ê·¸ê²ƒì— ëŒ€í•œ Integer ê°’ì„ Valueë¡œ ê°–ëŠ” dictíƒ€ì… 
 opCodeDict = dict()
 for i, s in enumerate(opCodes):
 	opCodeDict[s] = i
-	
+
 dynamicInstrCount = [0] * len(opCodes)
 staticInstrCount = [0] * len(opCodes)
 
@@ -75,43 +90,43 @@ pc = int()
 # extract parameter
 # and convert opcode to integer
 for i, tmpList in enumerate(srcCode):
-	op = opCodeDict[tmpList[0]]		# ÇØ´ç Opcode¿¡ ´ëÇÑ ¹øÈ£¸¦ opÀÌ °¡Áü
+	op = opCodeDict[tmpList[0]]		# í•´ë‹¹ Opcodeì— ëŒ€í•œ ë²ˆí˜¸ë¥¼ opì´ ê°€ì§
 	staticInstrCount[op] += 1
 
-	## ÆÄ¶ó¹ÌÅÍÀÇ °³¼ö¸¦ ±âÁØÀ¸·Î ³ª´«´Ù ##
+	## íŒŒë¼ë¯¸í„°ì˜ ê°œìˆ˜ë¥¼ ê¸°ì¤€ìœ¼ë¡œ ë‚˜ëˆˆë‹¤ ##
 
 	# no parameter
-	# ÆÄ¶ó¹ÌÅÍ°¡ ¾øÀ» °æ¿ì, ÆÄ¶ó¹ÌÅÍºÎºĞ¿¡ None(ÆÄ¶ó¹ÌÅÍ¸¦ °¡ÁöÁö ¾ÊÀ½À» ³ªÅ¸³¿)À¸·Î ÇØ¼­ instr ÇüÅÂ·Î scrCode¿¡ ÀúÀå.
+	# íŒŒë¼ë¯¸í„°ê°€ ì—†ì„ ê²½ìš°, íŒŒë¼ë¯¸í„°ë¶€ë¶„ì— None(íŒŒë¼ë¯¸í„°ë¥¼ ê°€ì§€ì§€ ì•ŠìŒì„ ë‚˜íƒ€ëƒ„)ìœ¼ë¡œ í•´ì„œ instr í˜•íƒœë¡œ scrCodeì— ì €ì¥.
 	if (0 <= op <= 18) or op in [28, 29, 31, 32, 33, 35, 36, 39]:
 		srcCode[i] = instr(op, None)
 
 	# 3 parameter
-	# Á¤¼öÇü ÆÄ¶ó¹ÌÅÍ°¡ 3°³ ÀÖ´Â °æ¿ì, ÆÄ¶ó¹ÌÅÍºÎºĞ¿¡´Â 3°³ÀÇ °ªµéÀÌ ¿À´Âµ¥
-	# tmpList´Â StringÀÌ¹Ç·Î intÇüÀ¸·Î ¹Ù²ãÁÖ°í 3°³¸¦ ¹­¾î Æ©ÇÃ»óÅÂ·Î ÇØ¼­ instr ÇüÅÂ·Î scrCode¿¡ ÀúÀå.
+	# ì •ìˆ˜í˜• íŒŒë¼ë¯¸í„°ê°€ 3ê°œ ìˆëŠ” ê²½ìš°, íŒŒë¼ë¯¸í„°ë¶€ë¶„ì—ëŠ” 3ê°œì˜ ê°’ë“¤ì´ ì˜¤ëŠ”ë°
+	# tmpListëŠ” Stringì´ë¯€ë¡œ intí˜•ìœ¼ë¡œ ë°”ê¿”ì£¼ê³  3ê°œë¥¼ ë¬¶ì–´ íŠœí”Œìƒíƒœë¡œ í•´ì„œ instr í˜•íƒœë¡œ scrCodeì— ì €ì¥.
 	elif op == 38 or op == 34:
 		srcCode[i] = instr(op, (int(tmpList[1]), int(tmpList[2]), int(tmpList[3])))
 
 	# 1 integer parameter
-	# Á¤¼öÇü ÆÄ¶ó¹ÌÅÍ°¡ 1°³ ÀÖ´Â °æ¿ì
+	# ì •ìˆ˜í˜• íŒŒë¼ë¯¸í„°ê°€ 1ê°œ ìˆëŠ” ê²½ìš°
 	elif op in [21, 26, 27, 37]:
 		srcCode[i] = instr(op, (int(tmpList[1]), ))
 		# if op is bgn
-		# bgn(op=37)ÀÇ °æ¿ì bgnÀÌ À§Ä¡ÇÑ ÁÙÀÇ ¹øÈ£°¡ pc°¡ µÈ´Ù.
+		# bgn(op=37)ì˜ ê²½ìš° bgnì´ ìœ„ì¹˜í•œ ì¤„ì˜ ë²ˆí˜¸ê°€ pcê°€ ëœë‹¤.
 		if op is 37:
 			pc = i
 
 	# 1 label parameter
-	# ÆÄ¶ó¹ÌÅÍ°¡ 1°³ÀÖ´Â °æ¿ì, 1°³ÀÎ ÆÄ¶ó¹ÌÅÍ°¡ ¶óº§ÀÎ °æ¿ì
+	# íŒŒë¼ë¯¸í„°ê°€ 1ê°œìˆëŠ” ê²½ìš°, 1ê°œì¸ íŒŒë¼ë¯¸í„°ê°€ ë¼ë²¨ì¸ ê²½ìš°
 	elif op in [23, 24, 25, 30]:
 		srcCode[i] = instr(op, (labelTable[tmpList[1]], ))
 
 	# 2 parameter
-	# Á¤¼öÇü ÆÄ¶ó¹ÌÅÍ°¡ 2°³ ÀÖ´Â °æ¿ì
+	# ì •ìˆ˜í˜• íŒŒë¼ë¯¸í„°ê°€ 2ê°œ ìˆëŠ” ê²½ìš°
 	else:
 		srcCode[i] = instr(op, (int(tmpList[1]), int(tmpList[2])))
 
 
-# ¼Ò½º ÄÚµå Ãâ·Â
+# ì†ŒìŠ¤ ì½”ë“œ ì¶œë ¥
 writeHandle.write("Line\t object\t\t ucode source program\n\n")
 for i, l in enumerate(srcCode):
 	writeHandle.write("{0:3}\t({1}  {2})\t{3}\n".format(i, l.opcode, l.operand, originalSrcCode[i]))
@@ -119,59 +134,59 @@ for i, l in enumerate(srcCode):
 
 class Stack:
 	arr = list()
-	# ¾Æ¹«°Íµµ ÀúÀåµÇÁö ¾ÊÀ» °æ¿ì
+	# ì•„ë¬´ê²ƒë„ ì €ì¥ë˜ì§€ ì•Šì„ ê²½ìš°
 	sp = -1
 
-	# »ı¼ºÀÚ
-	# ½ºÅÃÀÇ Å©±â ¼³Á¤
+	# ìƒì„±ì
+	# ìŠ¤íƒì˜ í¬ê¸° ì„¤ì •
 	def __init__(self, size):
 		self.arr = [0]*size
 
-	# Top¿¡ÀÖ´Â °ÍÀ» ²¨³»±â À§ÇÔ
+	# Topì—ìˆëŠ” ê²ƒì„ êº¼ë‚´ê¸° ìœ„í•¨
 	def pop(self):
 		self.sp -= 1
 		return self.arr[self.sp + 1]
 
-	# ÇöÀç Top+1À» ÇÑ°÷¿¡ °ªÀ» ³Ö´Â´Ù.
+	# í˜„ì¬ Top+1ì„ í•œê³³ì— ê°’ì„ ë„£ëŠ”ë‹¤.
 	def push(self, val):
 		self.sp += 1
-		# ¸¸¾à, sp°¡ arr±æÀÌº¸´Ù Å¬ °æ¿ì arrÀ» Ãß°¡ ÇÒ´ç
+		# ë§Œì•½, spê°€ arrê¸¸ì´ë³´ë‹¤ í´ ê²½ìš° arrì„ ì¶”ê°€ í• ë‹¹
 		if self.sp >= len(self.arr):
 			self.arr.append(val)
-		# ¾Æ´Ñ °æ¿ì sp°¡ À§Ä¡ÇÏ´Â °÷¿¡ °ªÀ» ³Ö´Â´Ù.
+		# ì•„ë‹Œ ê²½ìš° spê°€ ìœ„ì¹˜í•˜ëŠ” ê³³ì— ê°’ì„ ë„£ëŠ”ë‹¤.
 		else:
 			self.arr[self.sp] = val
 
-	# ¿øÇÏ´Â À§Ä¡¿¡ °ªÀ» °¡Á®¿À±â À§ÇÑ ÇÔ¼ö
+	# ì›í•˜ëŠ” ìœ„ì¹˜ì— ê°’ì„ ê°€ì ¸ì˜¤ê¸° ìœ„í•œ í•¨ìˆ˜
 	def __getitem__(self, i):
 		if i < 0:
-			# sp¿¡¼­ÀÇ À½¼ö ÀÎµ¦½ºÀÇ °ªÀ» °¡Á®¿À±âÀ§ÇØ¼­
-			# ¿¹ (½ÇÁ¦·Î -1ÀÏ °æ¿ì, arr¿¡¼­ °¡ÀåµÚ¿¡ À§Ä¡ÇÏ¹Ç·Î i = sp+1+(-1)
+			# spì—ì„œì˜ ìŒìˆ˜ ì¸ë±ìŠ¤ì˜ ê°’ì„ ê°€ì ¸ì˜¤ê¸°ìœ„í•´ì„œ
+			# ì˜ˆ (ì‹¤ì œë¡œ -1ì¼ ê²½ìš°, arrì—ì„œ ê°€ì¥ë’¤ì— ìœ„ì¹˜í•˜ë¯€ë¡œ i = sp+1+(-1)
 			i += self.sp + 1
 		return self.arr[i]
 
-	# ¿øÇÏ´Â À§Ä¡¿¡ °ªÀ» ³Ö±â À§ÇÑ ÇÔ¼ö
+	# ì›í•˜ëŠ” ìœ„ì¹˜ì— ê°’ì„ ë„£ê¸° ìœ„í•œ í•¨ìˆ˜
 	def __setitem__(self, i, value):
 		if i >= 0:
 			self.arr[i] = value
 		else:
-			# sp¿¡ ÀÖ´Â °÷¿¡ °ªÀ» ¼³Á¤
+			# spì— ìˆëŠ” ê³³ì— ê°’ì„ ì„¤ì •
 			self.arr[self.sp + i + 1] = value
 
-	# sp¸¦ ¼³Á¤ÇØÁÖ±âÀ§ÇÑ ÇÔ¼ö
+	# spë¥¼ ì„¤ì •í•´ì£¼ê¸°ìœ„í•œ í•¨ìˆ˜
 	def setSP(self, val):
-		# sp°¡ À§Ä¡ÇÒ °÷ÀÌ ¾ÆÁ÷ ÇÒ´ç¹ŞÁö ¾ÊÀº °÷ÀÌ¶ó¸é
+		# spê°€ ìœ„ì¹˜í•  ê³³ì´ ì•„ì§ í• ë‹¹ë°›ì§€ ì•Šì€ ê³³ì´ë¼ë©´
 		if val >= len(self.arr):
-			# arr Ãß°¡ ÇÒ´ç
+			# arr ì¶”ê°€ í• ë‹¹
 			self.arr.extend([0] * (val - len(self.arr) + 1))
 		self.sp = val
 
 stack = Stack(10)
 
-# ÇÔ¼ö½ÃÀÛÁÖ¼Ò¸¦ ¾Ë±âÀ§ÇØ 
+# í•¨ìˆ˜ì‹œì‘ì£¼ì†Œë¥¼ ì•Œê¸°ìœ„í•´ 
 curntFuncStartP = int()
 
-# ldp¸¦ ÇÒ°æ¿ì¿¡ ÇØ´çºÎºĞÀÇ ½ÃÀÛÁÖ¼Ò¸¦ ¾Ë±âÀ§ÇØ
+# ldpë¥¼ í• ê²½ìš°ì— í•´ë‹¹ë¶€ë¶„ì˜ ì‹œì‘ì£¼ì†Œë¥¼ ì•Œê¸°ìœ„í•´
 spBackUp = int()
 
 # input buffer
@@ -179,22 +194,22 @@ buffer = list()
 
 
 
-# ÀÚ±â°¡ ¿øÇÏ´Â ÁÖ¼Ò¸¦ Ã£¾ÆÁÖ´Â ÇÔ¼ö
+# ìê¸°ê°€ ì›í•˜ëŠ” ì£¼ì†Œë¥¼ ì°¾ì•„ì£¼ëŠ” í•¨ìˆ˜
 def findAddress(address):
-	tmp = curntFuncStartP	# ÇöÀçÇÔ¼öÀÇ ½ÃÀÛÁÖ¼Ò¸¦ tmp¿¡ ÀúÀå
+	tmp = curntFuncStartP	# í˜„ì¬í•¨ìˆ˜ì˜ ì‹œì‘ì£¼ì†Œë¥¼ tmpì— ì €ì¥
 
-	# ¸¸¾à 0¹øÂ° ºí·ÏÀ» Á¢±ÙÇÏ·Á°í ÇÒ °æ¿ìÀÇ ¿¹¿ÜÃ³¸®
+	# ë§Œì•½ 0ë²ˆì§¸ ë¸”ë¡ì„ ì ‘ê·¼í•˜ë ¤ê³  í•  ê²½ìš°ì˜ ì˜ˆì™¸ì²˜ë¦¬
 	if tmp < 0 or (address[0] == 0):
 		print("wrong memory access")
 		exit(1)
-	# operand[0](ºí·Ï¹øÈ£)¿Í °°Àº block ¹øÈ£¸¦ °¡Áú ¶§ ±îÁö ¹İº¹ 
+	# operand[0](ë¸”ë¡ë²ˆí˜¸)ì™€ ê°™ì€ block ë²ˆí˜¸ë¥¼ ê°€ì§ˆ ë•Œ ê¹Œì§€ ë°˜ë³µ 
 	while address[0] != stack[tmp + 3]:
-		tmp = stack[tmp]	# ½ÃÀÛÁÖ¼Ò¿¡ ÀÖ´Â °ª(Lexical-1°ú °°Àº block¹øÈ£¸¦ °®´Â °÷ÀÇ ½ÃÀÛÁÖ¼Ò)À» tmp¿¡ ÀúÀå
-		# À½¼ö¹øÂ°¿¡ Á¢±ÙÇÏ·Á°í ÇÒ ¶§ÀÇ ¿¹¿ÜÃ³¸®
+		tmp = stack[tmp]	# ì‹œì‘ì£¼ì†Œì— ìˆëŠ” ê°’(Lexical-1ê³¼ ê°™ì€ blockë²ˆí˜¸ë¥¼ ê°–ëŠ” ê³³ì˜ ì‹œì‘ì£¼ì†Œ)ì„ tmpì— ì €ì¥
+		# ìŒìˆ˜ë²ˆì§¸ì— ì ‘ê·¼í•˜ë ¤ê³  í•  ë•Œì˜ ì˜ˆì™¸ì²˜ë¦¬
 		if tmp < 1:
 			print("wrong memory access")
 			exit(1)
-	return tmp + 3 + address[1]	# ±× block¹øÈ£¸¦ °®´Â ÇÔ¼öÀÇ offset(address[1])¿¡ ÇØ´çµÇ´Â ÁÖ¼Ò¸¦ ¸®ÅÏ
+	return tmp + 4 + address[1]	# ê·¸ blockë²ˆí˜¸ë¥¼ ê°–ëŠ” í•¨ìˆ˜ì˜ offset(address[1])ì— í•´ë‹¹ë˜ëŠ” ì£¼ì†Œë¥¼ ë¦¬í„´
 
 
 writeHandle.write("\n*****  Result  *****\n\n")
@@ -204,7 +219,7 @@ while True:
 	operand = srcCode[pc].operand
 	dynamicInstrCount[op] += 1
 	#print("pc: {0}, {1} ({2})".format(pc, op, opCodes[op]))
-	
+
 	# notop
 	if op == 0:
 		if stack[-1] == 0:
@@ -301,18 +316,18 @@ while True:
 		stack.pop()
 	# lod
 	elif op == 19:
-		# operand¿¡ ÇØ´çµÇ´Â stack¿¡¼­ÀÇ ÁÖ¼Ò
+		# operandì— í•´ë‹¹ë˜ëŠ” stackì—ì„œì˜ ì£¼ì†Œ
 		address = findAddress(operand)
-		# stack¿¡¼­ address¿¡ ÇØ´çµÇ´Â °÷¿¡ °ªÀ» °¡Á®¿Â´Ù.
+		# stackì—ì„œ addressì— í•´ë‹¹ë˜ëŠ” ê³³ì— ê°’ì„ ê°€ì ¸ì˜¨ë‹¤.
 		value = stack[address]
-		# ±×¸®°í ±× °ªÀ» ´Ù½Ã top¿¡ push
+		# ê·¸ë¦¬ê³  ê·¸ ê°’ì„ ë‹¤ì‹œ topì— push
 		stack.push(value)
 	# str
-	# operand¿¡ ÇØ´çµÇ´Â stackÀÇ ÁÖ¼Ò¿¡ °¡Àå À§¿¡ °ªÀ» ³Ö¾îÁØ´Ù.
+	# operandì— í•´ë‹¹ë˜ëŠ” stackì˜ ì£¼ì†Œì— ê°€ì¥ ìœ„ì— ê°’ì„ ë„£ì–´ì¤€ë‹¤.
 	elif op == 20:
-		# operand¿¡ ÇØ´çµÇ´Â stack¿¡¼­ÀÇ ÁÖ¼Ò
+		# operandì— í•´ë‹¹ë˜ëŠ” stackì—ì„œì˜ ì£¼ì†Œ
 		address = findAddress(operand)
-		# stack¿¡¼­ address¿¡ ÇØ´çµÇ´Â °÷¿¡ top¿¡ ÀÖ´Â °ªÀ» ÀúÀå
+		# stackì—ì„œ addressì— í•´ë‹¹ë˜ëŠ” ê³³ì— topì— ìˆëŠ” ê°’ì„ ì €ì¥
 		stack[address] = stack.pop()
 	# ldc
 	elif op == 21:
@@ -344,62 +359,198 @@ while True:
 			exit(1)
 	# ldi
 	elif op == 28:
-		address = stack.pop()		# ÇöÀç top¿¡ ÀÖ´Â °ªÀ» ÁÖ¼Ò·Î
-		stack.push(stack[address])	# ±× ÁÖ¼Ò¿¡ ¸Â´Â °÷ÀÇ °ªÀ» top¿¡ ´Ù½ÃÀúÀå
+		address = stack.pop()		# í˜„ì¬ topì— ìˆëŠ” ê°’ì„ ì£¼ì†Œë¡œ
+		stack.push(stack[address])	# ê·¸ ì£¼ì†Œì— ë§ëŠ” ê³³ì˜ ê°’ì„ topì— ë‹¤ì‹œì €ì¥
 	# sti
 	elif op == 29:
-		dataToSave = stack.pop()	# ÇöÀç top¿¡ ÀÖ´Â °ªÀ» dataToSave¿¡ ³Ö°í
-		address = stack.pop()		# ±×´ÙÀ½¿¡ top¿¡ ÀÖ´Â °ªÀ» ÁÖ¼Ò·Î ¼³Á¤
-		stack[address] = dataToSave	# stack¿¡¼­ ÇØ´ç ÁÖ¼Ò¿¡ ÀÖ´Â °÷¿¡ dataToSave °ªÀ» ³Ö´Â´Ù.
+		dataToSave = stack.pop()	# í˜„ì¬ topì— ìˆëŠ” ê°’ì„ dataToSaveì— ë„£ê³ 
+		address = stack.pop()		# ê·¸ë‹¤ìŒì— topì— ìˆëŠ” ê°’ì„ ì£¼ì†Œë¡œ ì„¤ì •
+		stack[address] = dataToSave	# stackì—ì„œ í•´ë‹¹ ì£¼ì†Œì— ìˆëŠ” ê³³ì— dataToSave ê°’ì„ ë„£ëŠ”ë‹¤.
 	# call
 	elif op == 30:
-		# lf ÁÙ¹Ù²Ş
+		# lf ì¤„ë°”ê¿ˆ
 		if operand[0] == -1:
 			writeHandle.write("\n")
-		# write ¸¶Áö¸· °ª Ãâ·Â 
+
+		# write ë§ˆì§€ë§‰ ê°’ ì¶œë ¥ 
 		elif operand[0] == -2:
 			writeHandle.write("{0} ".format(stack[-1]))
 			stack.setSP(spBackUp - 1)
+
 		# read 
 		elif operand[0] == -3:
-			while len(buffer) == 0:	# ¹öÆÛ¿¡ °ªÀÌ ¾ø´Â µ¿¾È
-				# mapÀ» ÀÌ¿ëÇÏ¿© split()·Î ³ª´©¾îÁø ÀÔ·Â°ª µéÀ» °¢°¢ intÇÔ¼ö·Î ÃëÇÏ°í, listÇü½ÄÀ¸·Î buffer¿¡ ÀúÀå 
+			while len(buffer) == 0:	# ë²„í¼ì— ê°’ì´ ì—†ëŠ” ë™ì•ˆ
+				# mapì„ ì´ìš©í•˜ì—¬ split()ë¡œ ë‚˜ëˆ„ì–´ì§„ ì…ë ¥ê°’ ë“¤ì„ ê°ê° intí•¨ìˆ˜ë¡œ ì·¨í•˜ê³ , listí˜•ì‹ìœ¼ë¡œ bufferì— ì €ì¥ 
 				buffer = list(map(int, input().split()))
-			address = stack.pop()			# top¿¡ ÀÖ´Â °ªÀ» °¡Á®¿Í address·ÎÇÏ°í
-			stack[address] = buffer.pop(0)	# stack¿¡¼­ ±× address¿¡ ÇØ´çÇÏ´Â ºÎºĞ¿¡ ¹öÆÛ¿¡ Ã¹¹øÂ°ÀÖ´Â °ÍÀ» popÇØ¼­ ³Ö´Â´Ù.
+			address = stack.pop()			# topì— ìˆëŠ” ê°’ì„ ê°€ì ¸ì™€ addressë¡œí•˜ê³ 
+			stack[address] = buffer.pop(0)	# stackì—ì„œ ê·¸ addressì— í•´ë‹¹í•˜ëŠ” ë¶€ë¶„ì— ë²„í¼ì— ì²«ë²ˆì§¸ìˆëŠ” ê²ƒì„ popí•´ì„œ ë„£ëŠ”ë‹¤.
 			stack.setSP(spBackUp - 1)
+
+		# addFloat ì‹¤ìˆ˜ ë‘ê°œ ë”í•¨
+		elif operand[0] == -4:
+			s = struct.pack('>i', stack[-1])
+			r1 = struct.unpack('>f', s)[0]
+			s = struct.pack('>i', stack[-2])
+			r2 = struct.unpack('>f', s)[0]
+
+			result = r1 + r2
+
+			s = struct.pack('>f', result)
+			r = struct.unpack('>i', s)[0]
+			stack.setSP(spBackUp - 1)
+			stack.push(r)
+
+		# subFloat ì‹¤ìˆ˜ ë‘ê°œ ëºŒ
+		elif operand[0] == -5:
+			s = struct.pack('>i', stack[-1])
+			r1 = struct.unpack('>f', s)[0]
+			s = struct.pack('>i', stack[-2])
+			r2 = struct.unpack('>f', s)[0]
+
+			result = r1 - r2
+
+			s = struct.pack('>f', result)
+			r = struct.unpack('>i', s)[0]
+			stack.setSP(spBackUp - 1)
+			stack.push(r)
+
+		# mulFloat ì‹¤ìˆ˜ ë‘ê°œ ê³±í•¨
+		elif operand[0] == -6:
+			s = struct.pack('>i', stack[-1])
+			r1 = struct.unpack('>f', s)[0]
+			s = struct.pack('>i', stack[-2])
+			r2 = struct.unpack('>f', s)[0]
+
+			result = r1 * r2
+
+			s = struct.pack('>f', result)
+			r = struct.unpack('>i', s)[0]
+			stack.setSP(spBackUp - 1)
+			stack.push(r)
+
+		# divFloat ì‹¤ìˆ˜ ë‘ê°œ ë‚˜ëˆ”
+		elif operand[0] == -7:
+			s = struct.pack('>i', stack[-1])
+			r1 = struct.unpack('>f', s)[0]
+			s = struct.pack('>i', stack[-2])
+			r2 = struct.unpack('>f', s)[0]
+
+			result = r1 / r2
+
+			s = struct.pack('>f', result)
+			r = struct.unpack('>i', s)[0]
+			stack.setSP(spBackUp - 1)
+			stack.push(r)
+
+		# modFloat ì‹¤ìˆ˜ ë‘ê°œ modì—°ì‚°
+		elif operand[0] == -8:
+			s = struct.pack('>i', stack[-1])
+			r1 = struct.unpack('>f', s)[0]
+			s = struct.pack('>i', stack[-2])
+			r2 = struct.unpack('>f', s)[0]
+
+			result = r1 % r2
+
+			s = struct.pack('>f', result)
+			r = struct.unpack('>i', s)[0]
+			stack.setSP(spBackUp - 1)
+			stack.push(r)
+
+		# negFloat ì‹¤ìˆ˜ ë¶€í˜¸ ë°”ê¿ˆ
+		elif operand[0] == -9:
+			s = struct.pack('>i', stack[-1])
+			r1 = struct.unpack('>f', s)[0]
+
+			r1 = -r1
+
+			s = struct.pack('>f', r1)
+			r = struct.unpack('>i', s)[0]
+			stack.setSP(spBackUp - 1)
+			stack.push(r)
+
+		# F2I ì‹¤ìˆ˜ë¥¼ ì •ìˆ˜ë¡œ
+		elif operand[0] == -10:
+			s = struct.pack('>i', stack[-1])
+			r1 = struct.unpack('>f', s)[0]
+
+			r1 = int(r1)
+
+			stack.setSP(spBackUp - 1)
+			stack.push(r1)
+
+		# I2F ì •ìˆ˜ë¥¼ ì‹¤ìˆ˜ë¡œ
+		elif operand[0] == -11:
+			val = float(stack[-1])
+
+			s = struct.pack('>f', val)
+			r1 = struct.unpack('>i', s)[0]
+
+			stack.setSP(spBackUp - 1)
+			stack.push(r1)
+
+		# writeF ì‹¤ìˆ˜ ì¶œë ¥
+		elif operand[0] == -12:
+			s = struct.pack('>i', stack[-1])
+			r1 = struct.unpack('>f', s)[0]
+
+			writeHandle.write("{0} ".format(r1))
+			stack.setSP(spBackUp - 1)
+
+		# writeC ë¬¸ì ì¶œë ¥
+		elif operand[0] == -13:
+			writeHandle.write("{0} ".format(chr(stack[-1])))
+			stack.setSP(spBackUp - 1)
+
+		# writeT timeíƒ€ì… ì¶œë ¥
+		elif operand[0] == -14:
+			hour = stack[-1] // 3600
+			minute = stack[-1] % 3600 // 60
+			sec = stack[-1] % 60
+			writeHandle.write("{0}:{1}:{2} ".format(hour, minute, sec))
+			stack.setSP(spBackUp - 1)
+
+		# writeD dateíƒ€ì… ì¶œë ¥
+		elif operand[0] == -15:
+			days = stack[-1]
+			d = (datetime.datetime.min + datetime.timedelta(days)).date()
+			writeHandle.write("{0}/{1}/{2} ".format(d.year, d.month, d.day))
+			stack.setSP(spBackUp - 1)
+
 		else:
-			stack[spBackUp + 2] = pc + 1			# µ¹¾Æ¿Ã À§Ä¡(call ¹Ù·Î ¹Ø¿¡ ¶óÀÎ³Ñ¹öÀÎ °÷)¸¦ ÀúÀåÇØµÒ
-			stack[spBackUp + 1] = curntFuncStartP	# ÀÌÀü ºí¶ôÀÇ ½ÃÀÛÀ§Ä¡
-			curntFuncStartP = spBackUp				# ÇöÀç ÇÔ¼öÀÇ ½ÃÀÛÀ§Ä¡¸¦ curntFuncStartP·Î ¼³Á¤
-			pc = operand[0] - 1		# ÇØ´ç ÇÔ¼ö(¶óº§)ÀÇ srcCodeÀÇ ½ÃÀÛÀ§Ä¡·Î pc¸¦ ÇØµĞ´Ù. whileÇÒ¶§¸¶´Ù +1À» ÇØÁÖ±â ¶§¹®¿¡ -1À» ÇØÁÖ´Â °ÍÀÌ´Ù.
+			stack[spBackUp + 2] = pc + 1			# ëŒì•„ì˜¬ ìœ„ì¹˜(call ë°”ë¡œ ë°‘ì— ë¼ì¸ë„˜ë²„ì¸ ê³³)ë¥¼ ì €ì¥í•´ë‘ 
+			stack[spBackUp + 1] = curntFuncStartP	# ì´ì „ ë¸”ë½ì˜ ì‹œì‘ìœ„ì¹˜
+			curntFuncStartP = spBackUp				# í˜„ì¬ í•¨ìˆ˜ì˜ ì‹œì‘ìœ„ì¹˜ë¥¼ curntFuncStartPë¡œ ì„¤ì •
+			pc = operand[0] - 1		# í•´ë‹¹ í•¨ìˆ˜(ë¼ë²¨)ì˜ srcCodeì˜ ì‹œì‘ìœ„ì¹˜ë¡œ pcë¥¼ í•´ë‘”ë‹¤. whileí• ë•Œë§ˆë‹¤ +1ì„ í•´ì£¼ê¸° ë•Œë¬¸ì— -1ì„ í•´ì£¼ëŠ” ê²ƒì´ë‹¤.
 	# ret
 	elif op == 31:
-		stack.setSP(curntFuncStartP - 1)			# ÇöÀç ÇÔ¼ö¸¦ »ç¶óÁö°Ô ÇÏ±â À§ÇÑ sp¼³Á¤
-		pc = stack[curntFuncStartP + 2] - 1			# ´Ù½Ã µ¹¾Æ°¥ PC°ªÀ¸·Î PC¼³Á¤
-		curntFuncStartP = stack[curntFuncStartP + 1]# ÀÌÀü ºí¶ôÀÇ ½ÃÀÛÁÖ¼Ò¸¦ curntFuncStratP·Î ÇØµÒ.( callÇÏ±â ÀÌÀüÀÎ °÷ÀÇ ½ÃÀÛÁÖ¼Ò·Î ¼³Á¤)
+		stack.setSP(curntFuncStartP - 1)			# í˜„ì¬ í•¨ìˆ˜ë¥¼ ì‚¬`ë¼ì§€ê²Œ í•˜ê¸° ìœ„í•œ spì„¤ì •
+		pc = stack[curntFuncStartP + 2] - 1			# ë‹¤ì‹œ ëŒì•„ê°ˆ PCê°’ìœ¼ë¡œ PCì„¤ì •
+		curntFuncStartP = stack[curntFuncStartP + 1]# ì´ì „ ë¸”ë½ì˜ ì‹œì‘ì£¼ì†Œë¥¼ curntFuncStratPë¡œ í•´ë‘ .( callí•˜ê¸° ì´ì „ì¸ ê³³ì˜ ì‹œì‘ì£¼ì†Œë¡œ ì„¤ì •)
 	# retv
 	elif op == 32:
-		tmp = stack[-1]						#  ÇöÀç ÇÔ¼öÀÇ ¸¶Áö¸· °ªÀ» tmp¿¡ÀúÀå
-		stack.setSP(curntFuncStartP - 1)	# ÇöÀç ÇÔ¼ö¸¦ »ç¶óÁö°Ô ÇÏ±â À§ÇÑ sp¼³Á¤
-		stack.push(tmp)					# ÇöÀç ÇÔ¼öÀÇ ¸¶Áö¸· °ªÀ» ´Ù½Ã ¼³Á¤µÈ SP¿¡ push
-		pc = stack[curntFuncStartP + 2] - 1	# ´Ù½Ã µ¹¾Æ°¥ PC°ªÀ¸·Î PC¼³Á¤
-		# ÀÌÀü ºí¶ôÀÇ ½ÃÀÛÁÖ¼Ò¸¦ curntFuncStratP·Î ÇØµÒ.( callÇÏ±â ÀÌÀüÀÎ °÷ÀÇ ½ÃÀÛÁÖ¼Ò·Î ¼³Á¤)
+		tmp = stack[-1]						#  í˜„ì¬ í•¨ìˆ˜ì˜ ë§ˆì§€ë§‰ ê°’ì„ tmpì—ì €ì¥
+		stack.setSP(curntFuncStartP - 1)	# í˜„ì¬ í•¨ìˆ˜ë¥¼ ì‚¬ë¼ì§€ê²Œ í•˜ê¸° ìœ„í•œ spì„¤ì •
+		stack.push(tmp)					# í˜„ì¬ í•¨ìˆ˜ì˜ ë§ˆì§€ë§‰ ê°’ì„ ë‹¤ì‹œ ì„¤ì •ëœ SPì— push
+		pc = stack[curntFuncStartP + 2] - 1	# ë‹¤ì‹œ ëŒì•„ê°ˆ PCê°’ìœ¼ë¡œ PCì„¤ì •
+		spBackUp = stack[curntFuncStartP + 4]
+		# ì´ì „ ë¸”ë½ì˜ ì‹œì‘ì£¼ì†Œë¥¼ curntFuncStratPë¡œ í•´ë‘ .( callí•˜ê¸° ì´ì „ì¸ ê³³ì˜ ì‹œì‘ì£¼ì†Œë¡œ ì„¤ì •)
 		curntFuncStartP = stack[curntFuncStartP + 1]
 	# ldp
 	elif op == 33:
-		spBackUp = stack.sp + 1		# ÇØ´ç ÇÔ¼öÀÇ ½ÃÀÛÀ§Ä¡¸¦ ÀúÀåÇÏ±â À§ÇØ
-		stack.setSP(stack.sp + 4)	# ÇØ´ç ÇÔ¼öÀÇ Á¤º¸¸¦ ÀúÀåÇÏ±â À§ÇØ¼­
+		tmp = spBackUp
+		spBackUp = stack.sp + 1		# í•´ë‹¹ í•¨ìˆ˜ì˜ ì‹œì‘ìœ„ì¹˜ë¥¼ ì €ì¥í•˜ê¸° ìœ„í•´
+		stack.setSP(stack.sp + 5)	# í•´ë‹¹ í•¨ìˆ˜ì˜ ì •ë³´ë¥¼ ì €ì¥í•˜ê¸° ìœ„í•´ì„œ
+		stack[spBackUp + 4] = tmp
 	# proc
 	elif op == 34:
-		stack[curntFuncStartP + 3] = operand[1]			# ÀÚ½ÅÀÇ ºí·Ï³Ñ¹ö¸¦ ³Ö±â À§ÇØ
-		stack.setSP(curntFuncStartP + operand[0] + 3)	# ÇÒ´ç ¹ŞÀ» ·®¸¸Å­ sp¸¦ ´Ã·ÁÁØ´Ù.
-		tmp = stack[curntFuncStartP + 1]				# ÀÌÀü ºí¶ôÀÇ ½ÃÀÛÁÖ¼Ò
-		while operand[2] - 1 != stack[tmp + 3]:	# ÇöÀç Lexical-1°ú °°Àº ºí¶ô¹øÈ£¸¦ °°¾ÆÁú¶§±îÁö ¹İº¹
-			tmp = stack[tmp]					# ÀÌÀü ºí¶ôÀÇ ½ÃÀÛÁÖ¼Ò¿¡ ÇØ´çÇÏ´Â °ªÀ» tmp¿¡ ³Ö¾îµĞ´Ù
-		stack[curntFuncStartP] = tmp			# ÇöÀç Lexical-1°ú °°Àº ºí¶ô¹øÈ£¸¦ °°´Â °÷ÀÇ ½ÃÀÛÁÖ¼Ò
+		stack[curntFuncStartP + 3] = operand[1]			# ìì‹ ì˜ ë¸”ë¡ë„˜ë²„ë¥¼ ë„£ê¸° ìœ„í•´
+		stack.setSP(curntFuncStartP + operand[0] + 4)	# í• ë‹¹ ë°›ì„ ëŸ‰ë§Œí¼ spë¥¼ ëŠ˜ë ¤ì¤€ë‹¤.
+		tmp = stack[curntFuncStartP + 1]				# ì´ì „ ë¸”ë½ì˜ ì‹œì‘ì£¼ì†Œ
+		while operand[2] - 1 != stack[tmp + 3]:	# í˜„ì¬ Lexical-1ê³¼ ê°™ì€ ë¸”ë½ë²ˆí˜¸ë¥¼ ê°™ì•„ì§ˆë•Œê¹Œì§€ ë°˜ë³µ
+			tmp = stack[tmp]					# ì´ì „ ë¸”ë½ì˜ ì‹œì‘ì£¼ì†Œì— í•´ë‹¹í•˜ëŠ” ê°’ì„ tmpì— ë„£ì–´ë‘”ë‹¤
+		stack[curntFuncStartP] = tmp			# í˜„ì¬ Lexical-1ê³¼ ê°™ì€ ë¸”ë½ë²ˆí˜¸ë¥¼ ê°™ëŠ” ê³³ì˜ ì‹œì‘ì£¼ì†Œ
 	# end
-	# ÇÁ·Î±×·¥ Á¾·á
+	# í”„ë¡œê·¸ë¨ ì¢…ë£Œ
 	elif op == 35:
 		break
 	# nop
@@ -412,21 +563,21 @@ while True:
 		stack.push(0)
 		stack.push(-1)
 		stack.push(1)
-		stack.setSP(stack.sp + operand[0])	# stack.sp= 3 + bgnÀÇ ÆÄ¶ó¹ÌÅÍ
+		stack.setSP(stack.sp + operand[0])	# stack.sp= 3 + bgnì˜ íŒŒë¼ë¯¸í„°
 	# sym
-	# ÇöÀç ÄÚµå¿¡¼­´Â ÀÇ¹Ì¾øÀ½
+	# í˜„ì¬ ì½”ë“œì—ì„œëŠ” ì˜ë¯¸ì—†ìŒ
 	elif op == 38:
 		pass
 	# dump
-	# ¸¸µé¾î ³½ opCode(ÇöÀç Stack¿¡ ÀÖ´Â °ªµéÀ» º¸±âÀ§ÇÔ)
+	# ë§Œë“¤ì–´ ë‚¸ opCode(í˜„ì¬ Stackì— ìˆëŠ” ê°’ë“¤ì„ ë³´ê¸°ìœ„í•¨)
 	elif op == 39:
 		for i, v in enumerate(stack.arr):
 			if i > stack.sp: break
-			# stack¿¡¼­ÀÇ À§Ä¡¿Í ÇØ´çÀ§Ä¡ÀÇ °ªÀ» Ãâ·Â
+			# stackì—ì„œì˜ ìœ„ì¹˜ì™€ í•´ë‹¹ìœ„ì¹˜ì˜ ê°’ì„ ì¶œë ¥
 			print("({0}, {1})".format(i, v), end=' ')
 		print("")
 
-	#¹İº¹ÇÒ¶§¸¶´Ù pc+1
+	#ë°˜ë³µí• ë•Œë§ˆë‹¤ pc+1
 	pc += 1
 
 
