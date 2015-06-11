@@ -206,7 +206,7 @@ def findAddress(address):
 	while address[0] != stack[tmp + 3]:
 		tmp = stack[tmp]	# 시작주소에 있는 값(Lexical-1과 같은 block번호를 갖는 곳의 시작주소)을 tmp에 저장
 		# 음수번째에 접근하려고 할 때의 예외처리
-		if tmp < 1:
+		if tmp < 0:
 			print("wrong memory access")
 			exit(1)
 	return tmp + 4 + address[1]	# 그 block번호를 갖는 함수의 offset(address[1])에 해당되는 주소를 리턴
@@ -523,7 +523,7 @@ while True:
 			pc = operand[0] - 1		# 해당 함수(라벨)의 srcCode의 시작위치로 pc를 해둔다. while할때마다 +1을 해주기 때문에 -1을 해주는 것이다.
 	# ret
 	elif op == 31:
-		stack.setSP(curntFuncStartP - 1)			# 현재 함수를 사`라지게 하기 위한 sp설정
+		stack.setSP(curntFuncStartP - 1)			# 현재 함수를 사라지게 하기 위한 sp설정
 		pc = stack[curntFuncStartP + 2] - 1			# 다시 돌아갈 PC값으로 PC설정
 		curntFuncStartP = stack[curntFuncStartP + 1]# 이전 블락의 시작주소를 curntFuncStratP로 해둠.( call하기 이전인 곳의 시작주소로 설정)
 	# retv
@@ -562,6 +562,7 @@ while True:
 		stack.push(0)
 		stack.push(0)
 		stack.push(-1)
+		stack.push(1)
 		stack.push(1)
 		stack.setSP(stack.sp + operand[0])	# stack.sp= 3 + bgn의 파라미터
 	# sym
