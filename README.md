@@ -8,7 +8,7 @@
 ## Usage
 
 ```bash
-./Python/Python.py <UCode source path> <result file path>
+./src/interpreter.py '<UCode source path>' '<result file path>'
 ```
 
 ## Additional feature
